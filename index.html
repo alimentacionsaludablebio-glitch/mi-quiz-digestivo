@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnóstico de Salud Digestiva</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --purple: #6c4fb6;
+    --purple-light: #ede9f8;
+    --purple-mid: #9b84d4;
+    --green: #97b84f;
+    --green-light: #eef4dc;
+    --white: #ffffff;
+    --black: #000000;
+    --gray-100: #f7f7f7;
+    --gray-200: #ebebeb;
+    --gray-500: #888;
+    --gray-700: #444;
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--gray-100);
+    color: var(--black);
+    padding: 0;
+  }
+
+  .hero {
+    background: linear-gradient(135deg, var(--purple) 0%, #4a3490 100%);
+    padding: 48px 24px 64px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 220px; height: 220px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: -40px;
+    width: 280px; height: 280px;
+    border-radius: 50%;
+    background: rgba(151,184,79,0.12);
+  }
+
+  .hero-badge {
+    display: inline-block;
+    background: rgba(151,184,79,0.25);
+    color: #d4f09a;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 18px;
+  }
+
+  .hero h1 {
+    color: var(--white);
+    font-size: clamp(22px, 5vw, 34px);
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 14px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero p {
+    color: rgba(255,255,255,0.82);
+    font-size: 15px;
+    line-height: 1.65;
+    max-width: 540px;
+    margin: 0 auto 28px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-meta {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-meta span {
+    color: var(--white);
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.13);
+    border: 1px solid rgba(255,255,255,0.22);
+    border-radius: 12px;
+    padding: 14px 20px;
+    min-width: 110px;
+    text-align: center;
+    backdrop-filter: blur(4px);
+  }
+
+  .hero-meta span::before {
+    content: attr(data-icon);
+    font-size: 24px;
+    line-height: 1;
+  }
+
+  .hero-social-proof {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 22px;
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 50px;
+    padding: 10px 20px;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-sp-avatar {
+    font-size: 18px;
+    margin-right: -6px;
+  }
+
+  .hero-sp-avatar:last-of-type {
+    margin-right: 0;
+  }
+
+  .hero-sp-text {
+    font-size: 13px;
+    color: rgba(255,255,255,0.90);
+    line-height: 1.4;
+  }
+
+  .hero-sp-text strong {
+    color: #d4f09a;
+    font-weight: 700;
+  }
+
+  .container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 0 16px 48px;
+  }
+
+  .progress-wrap {
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-200);
+    padding: 14px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: none;
+  }
+
+  .progress-wrap.visible { display: block; }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--gray-500);
+    margin-bottom: 7px;
+  }
+
+  .progress-bar-bg {
+    background: var(--gray-200);
+    border-radius: 10px;
+    height: 6px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 10px;
+    background: linear-gradient(90deg, var(--purple), var(--green));
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  .start-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 36px 32px;
+    margin-top: -28px;
+    box-shadow: 0 4px 24px rgba(108,79,182,0.10);
+    text-align: center;
+  }
+
+  .start-icon {
+    width: 70px; height: 70px;
+    background: var(--purple-light);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 32px;
+  }
+
+  .start-card h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--purple);
+    margin-bottom: 10px;
+  }
+
+  .start-card p {
+    font-size: 14px;
+    color: var(--gray-700);
+    line-height: 1.7;
+    margin-bottom: 24px;
+  }
+
+  .symptoms-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 20px 0 28px;
+  }
+
+  .symptom-tag {
+    background: var(--purple-light);
+    color: var(--purple);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 20px;
+    text-align: center;
+  }
+
+  .btn-primary {
+    display: inline-block;
+    background: var(--purple);
+    color: var(--white);
+    border: none;
+    border-radius: 50px;
+    padding: 15px 40px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .btn-primary:hover { background: #5a3fa0; }
+  .btn-primary:active { transform: scale(0.98); }
+
+  .btn-green {
+    background: var(--green);
+  }
+  .btn-green:hover { background: #7a9e38; }
+
+  .question-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    margin-top: 20px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+  }
+
+  .q-category {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 10px;
+  }
+
+  .q-text {
+    font-size: 17px;
+    font-weight: 600;
+    color: #1a1a2e;
+    line-height: 1.45;
+    margin-bottom: 22px;
+  }
+
+  .options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .option-btn {
+    background: var(--gray-100);
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    padding: 13px 16px;
+    font-size: 14px;
+    color: var(--gray-700);
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .option-btn:hover {
+    border-color: var(--purple-mid);
+    background: var(--purple-light);
+    color: var(--purple);
+  }
+
+  .option-btn.selected {
+    border-color: var(--purple);
+    background: var(--purple-light);
+    color: var(--purple);
+    font-weight: 600;
+  }
+
+  .option-btn .check {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    border: 1.5px solid var(--gray-500);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    transition: all 0.15s;
+  }
+
+  .option-btn.selected .check {
+    background: var(--purple);
+    border-color: var(--purple);
+    color: white;
+  }
+
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 22px;
+    gap: 12px;
+  }
+
+  .btn-back {
+    background: none;
+    border: 1.5px solid var(--gray-200);
+    border-radius: 50px;
+    padding: 11px 24px;
+    font-size: 14px;
+    color: var(--gray-500);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-back:hover { border-color: var(--purple-mid); color: var(--purple); }
+
+  .btn-next {
+    background: var(--purple);
+    border: none;
+    border-radius: 50px;
+    padding: 13px 32px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--white);
+    cursor: pointer;
+    transition: all 0.15s;
+    flex: 1;
+    max-width: 220px;
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  .btn-next.enabled {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .btn-next.enabled:hover { background: #5a3fa0; }
+
+  .error-msg {
+    font-size: 12px;
+    color: #c0392b;
+    margin-top: 8px;
+    display: none;
+  }
+
+  .error-msg.visible { display: block; }
+
+  /* Results */
+  .result-hero {
+    background: var(--white);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-top: 20px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  }
+
+  .result-header {
+    padding: 32px 28px 24px;
+    text-align: center;
+  }
+
+  .result-level-badge {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 5px 16px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+
+  .level-1 .result-level-badge { background: var(--green-light); color: #4a7a1a; }
+  .level-2 .result-level-badge { background: #fff4e0; color: #9a6200; }
+  .level-3 .result-level-badge { background: #fdecea; color: #9b2b2b; }
+
+  .result-icon {
+    font-size: 48px;
+    margin-bottom: 14px;
+    display: block;
+  }
+
+  .result-title {
+    font-size: clamp(18px, 4vw, 24px);
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 12px;
+  }
+
+  .level-1 .result-title { color: #3a6010; }
+  .level-2 .result-title { color: #7a4e00; }
+  .level-3 .result-title { color: var(--purple); }
+
+  .result-summary {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--gray-700);
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .result-divider {
+    height: 4px;
+  }
+
+  .level-1 .result-divider { background: linear-gradient(90deg, var(--green), #c5e08a); }
+  .level-2 .result-divider { background: linear-gradient(90deg, #f5a623, #f8d66e); }
+  .level-3 .result-divider { background: linear-gradient(90deg, var(--purple), #b08ee0); }
+
+  .result-sections {
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .result-section {
+    background: var(--gray-100);
+    border-radius: var(--radius-sm);
+    padding: 16px 18px;
+  }
+
+  .result-section h4 {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--purple);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .result-section ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .result-section ul li {
+    font-size: 13px;
+    color: var(--gray-700);
+    line-height: 1.5;
+    padding-left: 18px;
+    position: relative;
+  }
+
+  .result-section ul li::before {
+    content: '▸';
+    position: absolute;
+    left: 0;
+    color: var(--green);
+    font-size: 11px;
+    top: 2px;
+  }
+
+  .result-section p {
+    font-size: 13px;
+    color: var(--gray-700);
+    line-height: 1.6;
+  }
+
+  .motivator-box {
+    margin: 0 28px 24px;
+    padding: 18px 20px;
+    border-radius: var(--radius-sm);
+    background: var(--purple-light);
+    border-left: 4px solid var(--purple);
+    font-size: 14px;
+    font-style: italic;
+    color: var(--purple);
+    line-height: 1.6;
+  }
+
+  .cta-section {
+    background: linear-gradient(135deg, var(--purple) 0%, #4a3490 100%);
+    margin: 0 0 0 0;
+    padding: 32px 28px;
+    text-align: center;
+    border-radius: 0 0 var(--radius) var(--radius);
+  }
+
+  .cta-section h3 {
+    color: var(--white);
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .cta-section p {
+    color: rgba(255,255,255,0.82);
+    font-size: 13px;
+    line-height: 1.65;
+    margin-bottom: 22px;
+  }
+
+  .btn-cta {
+    display: inline-block;
+    background: var(--green);
+    color: var(--white);
+    border: none;
+    border-radius: 50px;
+    padding: 15px 36px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    text-decoration: none;
+    width: 100%;
+    max-width: 340px;
+  }
+
+  .btn-cta:hover { background: #7a9e38; }
+  .btn-cta:active { transform: scale(0.98); }
+
+  .whatsapp-section {
+    padding: 24px 28px;
+    text-align: center;
+    border-top: 1px solid var(--gray-200);
+  }
+
+  .whatsapp-section p {
+    font-size: 13px;
+    color: var(--gray-500);
+    margin-bottom: 14px;
+  }
+
+  .btn-whatsapp {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: #25D366;
+    color: var(--white);
+    border: none;
+    border-radius: 50px;
+    padding: 13px 32px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.1s;
+    width: 100%;
+    max-width: 340px;
+  }
+
+  .btn-whatsapp:hover { background: #1aa851; }
+  .btn-whatsapp:active { transform: scale(0.98); }
+
+  .btn-whatsapp svg {
+    width: 22px; height: 22px;
+    fill: white;
+    flex-shrink: 0;
+  }
+
+  .restart-link {
+    display: block;
+    text-align: center;
+    margin-top: 18px;
+    font-size: 13px;
+    color: var(--gray-500);
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  .restart-link:hover { color: var(--purple); }
+
+  /* ── Pantalla 2: Recopilación de datos ── */
+  .data-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 36px 32px;
+    margin-top: -28px;
+    box-shadow: 0 4px 24px rgba(108,79,182,0.10);
+  }
+
+  .data-card-header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .data-card-header .start-icon {
+    margin-bottom: 16px;
+  }
+
+  .data-card-header h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--purple);
+    margin-bottom: 8px;
+  }
+
+  .data-card-header p {
+    font-size: 14px;
+    color: var(--gray-500);
+    line-height: 1.6;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .field-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--purple);
+    margin-bottom: 6px;
+  }
+
+  .field-input {
+    width: 100%;
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    font-size: 14px;
+    color: var(--gray-700);
+    background: var(--gray-100);
+    transition: border-color 0.15s, background 0.15s;
+    outline: none;
+    font-family: inherit;
+  }
+
+  .field-input:focus {
+    border-color: var(--purple-mid);
+    background: var(--white);
+  }
+
+  .field-input.error {
+    border-color: #c0392b;
+    background: #fff5f5;
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  /* WhatsApp con selector de país */
+  .phone-wrapper {
+    display: flex;
+    gap: 0;
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    background: var(--gray-100);
+    overflow: hidden;
+    transition: border-color 0.15s;
+  }
+
+  .phone-wrapper:focus-within {
+    border-color: var(--purple-mid);
+    background: var(--white);
+  }
+
+  .phone-wrapper.error {
+    border-color: #c0392b;
+  }
+
+  .country-select {
+    border: none;
+    background: transparent;
+    padding: 12px 10px 12px 12px;
+    font-size: 13px;
+    color: var(--gray-700);
+    cursor: pointer;
+    outline: none;
+    flex-shrink: 0;
+    max-width: 150px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-family: inherit;
+  }
+
+  .phone-divider {
+    width: 1px;
+    background: var(--gray-200);
+    align-self: stretch;
+    margin: 8px 0;
+    flex-shrink: 0;
+  }
+
+  .phone-number-input {
+    border: none;
+    background: transparent;
+    padding: 12px 14px;
+    font-size: 14px;
+    color: var(--gray-700);
+    outline: none;
+    width: 100%;
+    font-family: inherit;
+  }
+
+  .field-hint {
+    font-size: 11px;
+    color: var(--gray-500);
+    margin-top: 5px;
+  }
+
+  .field-error {
+    font-size: 11px;
+    color: #c0392b;
+    margin-top: 5px;
+    display: none;
+  }
+
+  .field-error.visible { display: block; }
+
+  .privacy-note {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--purple-light);
+    border-radius: var(--radius-sm);
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: var(--purple);
+    line-height: 1.6;
+    opacity: 0.85;
+  }
+
+  .privacy-note span:first-child { font-size: 20px; flex-shrink: 0; }
+
+  /* Selector de tiempo */
+  .time-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .time-btn {
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    font-size: 13px;
+    color: var(--gray-700);
+    background: var(--gray-100);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    font-family: inherit;
+    font-weight: 500;
+  }
+
+  .time-btn:hover {
+    border-color: var(--purple-mid);
+    background: var(--purple-light);
+    color: var(--purple);
+  }
+
+  .time-btn.selected {
+    border-color: var(--purple);
+    background: var(--purple-light);
+    color: var(--purple);
+    font-weight: 700;
+  }
+
+  .time-btn.error-border {
+    border-color: #c0392b;
+  }
+
+  @media (max-width: 480px) {
+    .hero { padding: 36px 16px 52px; }
+    .start-card, .question-card, .data-card { padding: 24px 18px; }
+    .result-sections { padding: 20px 18px; }
+    .cta-section { padding: 28px 18px; }
+    .motivator-box { margin: 0 18px 20px; }
+    .whatsapp-section { padding: 20px 18px; }
+    .symptoms-grid { grid-template-columns: 1fr; }
+    .field-row { grid-template-columns: 1fr; }
+    .time-options { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-badge">Test de Salud Digestiva</div>
+  <h1>¿Cómo está realmente<br>tu salud intestinal?</h1>
+  <p>Responde 17 preguntas en 3-5 minutos y descubre qué nivel de atención necesita tu digestión ahora mismo.</p>
+  <div class="hero-meta">
+    <span data-icon="🎁">100% gratuito</span>
+    <span data-icon="⚡">Resultados inmediatos</span>
+    <span data-icon="⏱️">3–5 minutos</span>
+  </div>
+  <div class="hero-social-proof">
+    <span class="hero-sp-avatar">👩</span><span class="hero-sp-avatar">👩</span><span class="hero-sp-avatar">👩</span>
+    <span class="hero-sp-text"><strong>+300 mujeres</strong> ya han hecho este test para entender mejor sus síntomas</span>
+  </div>
+</div>
+
+<div class="progress-wrap" id="progressWrap">
+  <div class="progress-label">
+    <span id="progressText">Pregunta 1 de 17</span>
+    <span id="progressPct">0%</span>
+  </div>
+  <div class="progress-bar-bg">
+    <div class="progress-bar-fill" id="progressFill"></div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- PANTALLA INICIAL -->
+  <div class="screen active" id="screenStart">
+    <div class="start-card">
+      <div class="start-icon">🌿</div>
+      <h2>¿Tu intestino está pidiendo ayuda?</h2>
+      <p>Muchas mujeres viven con síntomas digestivos que afectan su energía, su piel, su estado de ánimo y su peso... sin saber que tienen solución.</p>
+      <div class="symptoms-grid">
+        <span class="symptom-tag">Hinchazón</span>
+        <span class="symptom-tag">Fatiga</span>
+        <span class="symptom-tag">Estreñimiento</span>
+        <span class="symptom-tag">Niebla mental</span>
+        <span class="symptom-tag">Digestiones pesadas</span>
+        <span class="symptom-tag">Cambios de ánimo</span>
+      </div>
+      <p>Este diagnóstico te ayudará a entender dónde estás y qué necesitas.</p>
+      <button class="btn-primary" onclick="goToDataScreen()">Comenzar el diagnóstico →</button>
+    </div>
+  </div>
+
+  <!-- PANTALLA 2: RECOPILACIÓN DE DATOS -->
+  <div class="screen" id="screenData">
+    <div class="data-card">
+      <div class="data-card-header">
+        <div class="start-icon">📋</div>
+        <h2>Antes de empezar</h2>
+        <p>Necesito algunos datos para personalizar tu resultado y poder contactarte si lo necesitas.</p>
+      </div>
+
+      <div class="field-group">
+
+        <!-- Nombre -->
+        <div>
+          <label class="field-label" for="inputNombre">Nombre completo</label>
+          <input class="field-input" id="inputNombre" type="text" placeholder="Tu nombre" autocomplete="given-name" />
+          <div class="field-error" id="errNombre">Por favor ingresa tu nombre.</div>
+        </div>
+
+        <!-- Edad y Correo -->
+        <div class="field-row">
+          <div>
+            <label class="field-label" for="inputEdad">Edad</label>
+            <input class="field-input" id="inputEdad" type="number" placeholder="Ej. 32" min="18" max="99" />
+            <div class="field-error" id="errEdad">Ingresa una edad válida.</div>
+          </div>
+          <div>
+            <label class="field-label" for="inputCorreo">Correo electrónico</label>
+            <input class="field-input" id="inputCorreo" type="email" placeholder="tu@correo.com" autocomplete="email" />
+            <div class="field-error" id="errCorreo">Ingresa un correo válido.</div>
+          </div>
+        </div>
+
+        <!-- Tiempo con síntomas -->
+        <div>
+          <label class="field-label">¿Cuánto tiempo llevas con estos síntomas?</label>
+          <div class="time-options" id="timeOptions">
+            <button class="time-btn" onclick="selectTime(this, 'menos-3m')">Menos de 3 meses</button>
+            <button class="time-btn" onclick="selectTime(this, '3-12m')">3 a 12 meses</button>
+            <button class="time-btn" onclick="selectTime(this, '1-3a')">1 a 3 años</button>
+            <button class="time-btn" onclick="selectTime(this, 'mas-3a')">Más de 3 años</button>
+          </div>
+          <div class="field-error" id="errTiempo">Selecciona cuánto tiempo llevas con síntomas.</div>
+        </div>
+
+        <!-- WhatsApp con selector de país -->
+        <div>
+          <label class="field-label">WhatsApp</label>
+          <div class="phone-wrapper" id="phoneWrapper">
+            <select class="country-select" id="countryCode">
+              <option value="+593" selected>🇪🇨 Ecuador +593</option>
+              <option value="+93">🇦🇫 Afganistán +93</option>
+              <option value="+355">🇦🇱 Albania +355</option>
+              <option value="+49">🇩🇪 Alemania +49</option>
+              <option value="+376">🇦🇩 Andorra +376</option>
+              <option value="+244">🇦🇴 Angola +244</option>
+              <option value="+1264">🇦🇮 Anguila +1264</option>
+              <option value="+1268">🇦🇬 Antigua y Barbuda +1268</option>
+              <option value="+966">🇸🇦 Arabia Saudita +966</option>
+              <option value="+213">🇩🇿 Argelia +213</option>
+              <option value="+54">🇦🇷 Argentina +54</option>
+              <option value="+374">🇦🇲 Armenia +374</option>
+              <option value="+297">🇦🇼 Aruba +297</option>
+              <option value="+61">🇦🇺 Australia +61</option>
+              <option value="+43">🇦🇹 Austria +43</option>
+              <option value="+994">🇦🇿 Azerbaiyán +994</option>
+              <option value="+1242">🇧🇸 Bahamas +1242</option>
+              <option value="+880">🇧🇩 Bangladés +880</option>
+              <option value="+1246">🇧🇧 Barbados +1246</option>
+              <option value="+973">🇧🇭 Baréin +973</option>
+              <option value="+32">🇧🇪 Bélgica +32</option>
+              <option value="+501">🇧🇿 Belice +501</option>
+              <option value="+229">🇧🇯 Benín +229</option>
+              <option value="+375">🇧🇾 Bielorrusia +375</option>
+              <option value="+591">🇧🇴 Bolivia +591</option>
+              <option value="+387">🇧🇦 Bosnia y Herzegovina +387</option>
+              <option value="+267">🇧🇼 Botsuana +267</option>
+              <option value="+55">🇧🇷 Brasil +55</option>
+              <option value="+673">🇧🇳 Brunéi +673</option>
+              <option value="+359">🇧🇬 Bulgaria +359</option>
+              <option value="+226">🇧🇫 Burkina Faso +226</option>
+              <option value="+257">🇧🇮 Burundi +257</option>
+              <option value="+975">🇧🇹 Bután +975</option>
+              <option value="+238">🇨🇻 Cabo Verde +238</option>
+              <option value="+855">🇰🇭 Camboya +855</option>
+              <option value="+237">🇨🇲 Camerún +237</option>
+              <option value="+1">🇨🇦 Canadá +1</option>
+              <option value="+974">🇶🇦 Catar +974</option>
+              <option value="+235">🇹🇩 Chad +235</option>
+              <option value="+56">🇨🇱 Chile +56</option>
+              <option value="+86">🇨🇳 China +86</option>
+              <option value="+357">🇨🇾 Chipre +357</option>
+              <option value="+57">🇨🇴 Colombia +57</option>
+              <option value="+269">🇰🇲 Comoras +269</option>
+              <option value="+850">🇰🇵 Corea del Norte +850</option>
+              <option value="+82">🇰🇷 Corea del Sur +82</option>
+              <option value="+225">🇨🇮 Costa de Marfil +225</option>
+              <option value="+506">🇨🇷 Costa Rica +506</option>
+              <option value="+385">🇭🇷 Croacia +385</option>
+              <option value="+53">🇨🇺 Cuba +53</option>
+              <option value="+45">🇩🇰 Dinamarca +45</option>
+              <option value="+253">🇩🇯 Yibuti +253</option>
+              <option value="+1767">🇩🇲 Dominica +1767</option>
+              <option value="+20">🇪🇬 Egipto +20</option>
+              <option value="+503">🇸🇻 El Salvador +503</option>
+              <option value="+971">🇦🇪 Emiratos Árabes Unidos +971</option>
+              <option value="+291">🇪🇷 Eritrea +291</option>
+              <option value="+421">🇸🇰 Eslovaquia +421</option>
+              <option value="+386">🇸🇮 Eslovenia +386</option>
+              <option value="+34">🇪🇸 España +34</option>
+              <option value="+1">🇺🇸 Estados Unidos +1</option>
+              <option value="+372">🇪🇪 Estonia +372</option>
+              <option value="+251">🇪🇹 Etiopía +251</option>
+              <option value="+63">🇵🇭 Filipinas +63</option>
+              <option value="+358">🇫🇮 Finlandia +358</option>
+              <option value="+679">🇫🇯 Fiyi +679</option>
+              <option value="+33">🇫🇷 Francia +33</option>
+              <option value="+241">🇬🇦 Gabón +241</option>
+              <option value="+220">🇬🇲 Gambia +220</option>
+              <option value="+995">🇬🇪 Georgia +995</option>
+              <option value="+233">🇬🇭 Ghana +233</option>
+              <option value="+350">🇬🇮 Gibraltar +350</option>
+              <option value="+1473">🇬🇩 Granada +1473</option>
+              <option value="+30">🇬🇷 Grecia +30</option>
+              <option value="+299">🇬🇱 Groenlandia +299</option>
+              <option value="+590">🇬🇵 Guadalupe +590</option>
+              <option value="+1671">🇬🇺 Guam +1671</option>
+              <option value="+502">🇬🇹 Guatemala +502</option>
+              <option value="+594">🇬🇫 Guayana Francesa +594</option>
+              <option value="+224">🇬🇳 Guinea +224</option>
+              <option value="+240">🇬🇶 Guinea Ecuatorial +240</option>
+              <option value="+245">🇬🇼 Guinea-Bisáu +245</option>
+              <option value="+592">🇬🇾 Guyana +592</option>
+              <option value="+509">🇭🇹 Haití +509</option>
+              <option value="+504">🇭🇳 Honduras +504</option>
+              <option value="+852">🇭🇰 Hong Kong +852</option>
+              <option value="+36">🇭🇺 Hungría +36</option>
+              <option value="+91">🇮🇳 India +91</option>
+              <option value="+62">🇮🇩 Indonesia +62</option>
+              <option value="+964">🇮🇶 Irak +964</option>
+              <option value="+98">🇮🇷 Irán +98</option>
+              <option value="+353">🇮🇪 Irlanda +353</option>
+              <option value="+354">🇮🇸 Islandia +354</option>
+              <option value="+1345">🇰🇾 Islas Caimán +1345</option>
+              <option value="+682">🇨🇰 Islas Cook +682</option>
+              <option value="+298">🇫🇴 Islas Feroe +298</option>
+              <option value="+692">🇲🇭 Islas Marshall +692</option>
+              <option value="+1649">🇹🇨 Islas Turcas y Caicos +1649</option>
+              <option value="+972">🇮🇱 Israel +972</option>
+              <option value="+39">🇮🇹 Italia +39</option>
+              <option value="+1876">🇯🇲 Jamaica +1876</option>
+              <option value="+81">🇯🇵 Japón +81</option>
+              <option value="+962">🇯🇴 Jordania +962</option>
+              <option value="+7">🇰🇿 Kazajistán +7</option>
+              <option value="+254">🇰🇪 Kenia +254</option>
+              <option value="+996">🇰🇬 Kirguistán +996</option>
+              <option value="+686">🇰🇮 Kiribati +686</option>
+              <option value="+965">🇰🇼 Kuwait +965</option>
+              <option value="+856">🇱🇦 Laos +856</option>
+              <option value="+266">🇱🇸 Lesoto +266</option>
+              <option value="+371">🇱🇻 Letonia +371</option>
+              <option value="+961">🇱🇧 Líbano +961</option>
+              <option value="+231">🇱🇷 Liberia +231</option>
+              <option value="+218">🇱🇾 Libia +218</option>
+              <option value="+423">🇱🇮 Liechtenstein +423</option>
+              <option value="+370">🇱🇹 Lituania +370</option>
+              <option value="+352">🇱🇺 Luxemburgo +352</option>
+              <option value="+853">🇲🇴 Macao +853</option>
+              <option value="+389">🇲🇰 Macedonia del Norte +389</option>
+              <option value="+261">🇲🇬 Madagascar +261</option>
+              <option value="+60">🇲🇾 Malasia +60</option>
+              <option value="+265">🇲🇼 Malaui +265</option>
+              <option value="+960">🇲🇻 Maldivas +960</option>
+              <option value="+223">🇲🇱 Malí +223</option>
+              <option value="+356">🇲🇹 Malta +356</option>
+              <option value="+212">🇲🇦 Marruecos +212</option>
+              <option value="+596">🇲🇶 Martinica +596</option>
+              <option value="+230">🇲🇺 Mauricio +230</option>
+              <option value="+222">🇲🇷 Mauritania +222</option>
+              <option value="+52">🇲🇽 México +52</option>
+              <option value="+691">🇫🇲 Micronesia +691</option>
+              <option value="+373">🇲🇩 Moldavia +373</option>
+              <option value="+377">🇲🇨 Mónaco +377</option>
+              <option value="+976">🇲🇳 Mongolia +976</option>
+              <option value="+382">🇲🇪 Montenegro +382</option>
+              <option value="+258">🇲🇿 Mozambique +258</option>
+              <option value="+95">🇲🇲 Myanmar +95</option>
+              <option value="+264">🇳🇦 Namibia +264</option>
+              <option value="+674">🇳🇷 Nauru +674</option>
+              <option value="+977">🇳🇵 Nepal +977</option>
+              <option value="+505">🇳🇮 Nicaragua +505</option>
+              <option value="+227">🇳🇪 Níger +227</option>
+              <option value="+234">🇳🇬 Nigeria +234</option>
+              <option value="+47">🇳🇴 Noruega +47</option>
+              <option value="+687">🇳🇨 Nueva Caledonia +687</option>
+              <option value="+64">🇳🇿 Nueva Zelanda +64</option>
+              <option value="+599">🇨🇼 Países Bajos Caribeños +599</option>
+              <option value="+31">🇳🇱 Países Bajos +31</option>
+              <option value="+92">🇵🇰 Pakistán +92</option>
+              <option value="+680">🇵🇼 Palaos +680</option>
+              <option value="+970">🇵🇸 Palestina +970</option>
+              <option value="+507">🇵🇦 Panamá +507</option>
+              <option value="+675">🇵🇬 Papúa Nueva Guinea +675</option>
+              <option value="+595">🇵🇾 Paraguay +595</option>
+              <option value="+51">🇵🇪 Perú +51</option>
+              <option value="+689">🇵🇫 Polinesia Francesa +689</option>
+              <option value="+48">🇵🇱 Polonia +48</option>
+              <option value="+351">🇵🇹 Portugal +351</option>
+              <option value="+1787">🇵🇷 Puerto Rico +1787</option>
+              <option value="+44">🇬🇧 Reino Unido +44</option>
+              <option value="+236">🇨🇫 República Centroafricana +236</option>
+              <option value="+420">🇨🇿 República Checa +420</option>
+              <option value="+1809">🇩🇴 República Dominicana +1809</option>
+              <option value="+243">🇨🇩 República Democrática del Congo +243</option>
+              <option value="+242">🇨🇬 República del Congo +242</option>
+              <option value="+250">🇷🇼 Ruanda +250</option>
+              <option value="+40">🇷🇴 Rumanía +40</option>
+              <option value="+7">🇷🇺 Rusia +7</option>
+              <option value="+685">🇼🇸 Samoa +685</option>
+              <option value="+378">🇸🇲 San Marino +378</option>
+              <option value="+1869">🇰🇳 San Cristóbal y Nieves +1869</option>
+              <option value="+1784">🇻🇨 San Vicente y las Granadinas +1784</option>
+              <option value="+290">🇸🇭 Santa Elena +290</option>
+              <option value="+1758">🇱🇨 Santa Lucía +1758</option>
+              <option value="+239">🇸🇹 Santo Tomé y Príncipe +239</option>
+              <option value="+221">🇸🇳 Senegal +221</option>
+              <option value="+232">🇸🇱 Sierra Leona +232</option>
+              <option value="+65">🇸🇬 Singapur +65</option>
+              <option value="+963">🇸🇾 Siria +963</option>
+              <option value="+252">🇸🇴 Somalia +252</option>
+              <option value="+94">🇱🇰 Sri Lanka +94</option>
+              <option value="+27">🇿🇦 Sudáfrica +27</option>
+              <option value="+249">🇸🇩 Sudán +249</option>
+              <option value="+211">🇸🇸 Sudán del Sur +211</option>
+              <option value="+46">🇸🇪 Suecia +46</option>
+              <option value="+41">🇨🇭 Suiza +41</option>
+              <option value="+597">🇸🇷 Surinam +597</option>
+              <option value="+268">🇸🇿 Suazilandia (Esuatini) +268</option>
+              <option value="+66">🇹🇭 Tailandia +66</option>
+              <option value="+886">🇹🇼 Taiwán +886</option>
+              <option value="+255">🇹🇿 Tanzania +255</option>
+              <option value="+992">🇹🇯 Tayikistán +992</option>
+              <option value="+670">🇹🇱 Timor Oriental +670</option>
+              <option value="+228">🇹🇬 Togo +228</option>
+              <option value="+676">🇹🇴 Tonga +676</option>
+              <option value="+1868">🇹🇹 Trinidad y Tobago +1868</option>
+              <option value="+216">🇹🇳 Túnez +216</option>
+              <option value="+993">🇹🇲 Turkmenistán +993</option>
+              <option value="+90">🇹🇷 Turquía +90</option>
+              <option value="+688">🇹🇻 Tuvalu +688</option>
+              <option value="+380">🇺🇦 Ucrania +380</option>
+              <option value="+256">🇺🇬 Uganda +256</option>
+              <option value="+598">🇺🇾 Uruguay +598</option>
+              <option value="+998">🇺🇿 Uzbekistán +998</option>
+              <option value="+678">🇻🇺 Vanuatu +678</option>
+              <option value="+58">🇻🇪 Venezuela +58</option>
+              <option value="+84">🇻🇳 Vietnam +84</option>
+              <option value="+967">🇾🇪 Yemen +967</option>
+              <option value="+260">🇿🇲 Zambia +260</option>
+              <option value="+263">🇿🇼 Zimbabue +263</option>
+            </select>
+            <div class="phone-divider"></div>
+            <input class="phone-number-input" id="inputPhone" type="tel" placeholder="Número sin código de país" />
+          </div>
+          <div class="field-hint">Solo dígitos, sin espacios ni guiones.</div>
+          <div class="field-error" id="errPhone">Ingresa tu número de WhatsApp.</div>
+        </div>
+
+      </div>
+
+      <div class="privacy-note">
+        <span>🔒</span>
+        <span>Tus datos son confidenciales y solo se usarán para personalizar tu resultado y contactarte si lo solicitas. No los compartimos con terceros.</span>
+      </div>
+
+      <div style="text-align:center;">
+        <button class="btn-primary" onclick="startTest()">Ir al diagnóstico →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANTALLA DE PREGUNTAS -->
+  <div class="screen" id="screenQuestions">
+    <div class="question-card" id="questionCard">
+      <div class="q-category" id="qCategory"></div>
+      <div class="q-text" id="qText"></div>
+      <div class="options-list" id="optionsList"></div>
+      <div class="error-msg" id="errorMsg">Por favor selecciona una respuesta para continuar.</div>
+    </div>
+    <div class="nav-row">
+      <button class="btn-back" id="btnBack" onclick="prevQuestion()">← Anterior</button>
+      <button class="btn-next" id="btnNext" onclick="nextQuestion()">Siguiente →</button>
+    </div>
+  </div>
+
+  <!-- PANTALLA DE RESULTADOS -->
+  <div class="screen" id="screenResult">
+    <div class="result-hero" id="resultHero">
+      <div class="result-header" id="resultHeader">
+        <span class="result-icon" id="resultIcon"></span>
+        <div class="result-level-badge" id="resultBadge"></div>
+        <div class="result-title" id="resultTitle"></div>
+        <div class="result-summary" id="resultSummary"></div>
+      </div>
+      <div class="result-divider"></div>
+      <div class="result-sections" id="resultSections"></div>
+      <div class="motivator-box" id="motivatorBox"></div>
+      <div class="cta-section">
+        <h3>Descubre qué está afectando realmente tu salud digestiva</h3>
+        <p>En una llamada de valoración revisaremos tu situación, identificaremos posibles factores que están contribuyendo a tus síntomas y evaluaremos si mi Método 5R puede ayudarte.</p>
+        <a href="https://calendly.com/ponce-liz/45min" target="_blank" class="btn-cta">📅 Agendar mi sesión de evaluación</a>
+      </div>
+      <div class="whatsapp-section">
+        <p>¿Prefieres contactarme directamente por WhatsApp?</p>
+        <a href="https://api.whatsapp.com/send?phone=593988207409&text=Hola%2C%20acabo%20de%20hacer%20el%20diagn%C3%B3stico%20de%20salud%20digestiva%20y%20me%20gustar%C3%ADa%20saber%20m%C3%A1s%20sobre%20el%20M%C3%A9todo%205R." target="_blank" class="btn-whatsapp">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+          Escribir por WhatsApp
+        </a>
+      </div>
+    </div>
+    <span class="restart-link" onclick="restartTest()">← Volver a hacer el test</span>
+  </div>
+
+</div>
+
+<script>
+const BOOKING_URL = "https://calendly.com/ponce-liz/45min";
+
+const questions = [
+  {
+    category: "Síntomas digestivos",
+    text: "¿Con qué frecuencia experimentas hinchazón abdominal?",
+    options: [
+      { text: "Nunca o casi nunca", score: 0 },
+      { text: "1-2 veces por semana", score: 1 },
+      { text: "Varias veces por semana", score: 2 },
+      { text: "Todos los días", score: 3 }
+    ]
+  },
+  {
+    category: "Síntomas digestivos",
+    text: "¿Sufres de gases excesivos, flatulencia o eructos frecuentes?",
+    options: [
+      { text: "Nunca o casi nunca", score: 0 },
+      { text: "Ocasionalmente", score: 1 },
+      { text: "Varias veces por semana", score: 2 },
+      { text: "A diario, me genera malestar", score: 3 }
+    ]
+  },
+  {
+    category: "Síntomas digestivos",
+    text: "¿Experimentas dolor o molestias abdominales, especialmente después de comer?",
+    options: [
+      { text: "No, raramente", score: 0 },
+      { text: "Sí, con ciertos alimentos específicos", score: 1 },
+      { text: "Sí, con frecuencia", score: 2 },
+      { text: "Sí, de forma recurrente y molesta", score: 3 }
+    ]
+  },
+  {
+    category: "Síntomas digestivos",
+    text: "¿Cómo es tu tránsito intestinal habitualmente?",
+    options: [
+      { text: "Regular, sin problemas", score: 0 },
+      { text: "Con alguna irregularidad esporádica", score: 1 },
+      { text: "Estreñimiento frecuente O diarrea frecuente", score: 2 },
+      { text: "Estreñimiento y diarrea alternados o muy frecuentes", score: 3 }
+    ]
+  },
+  {
+    category: "Síntomas digestivos",
+    text: "¿Cómo describes tus digestiones después de las comidas principales?",
+    options: [
+      { text: "Ligeras y sin molestias", score: 0 },
+      { text: "A veces algo pesadas", score: 1 },
+      { text: "Frecuentemente pesadas y lentas", score: 2 },
+      { text: "Casi siempre pesadas, con malestar", score: 3 }
+    ]
+  },
+  {
+    category: "Energía y bienestar",
+    text: "¿Cómo es tu nivel de energía durante el día?",
+    options: [
+      { text: "Bueno, me siento activa y con vitalidad", score: 0 },
+      { text: "Variable, con algún bajón por la tarde", score: 1 },
+      { text: "Bajo, me siento cansada con frecuencia", score: 2 },
+      { text: "Muy bajo, fatiga persistente incluso al despertar", score: 3 }
+    ]
+  },
+  {
+    category: "Energía y bienestar",
+    text: "¿Experimentas niebla mental (dificultad para concentrarte, lentitud mental)?",
+    options: [
+      { text: "No, mi mente está clara", score: 0 },
+      { text: "Ocasionalmente", score: 1 },
+      { text: "Con bastante frecuencia", score: 2 },
+      { text: "Casi siempre, me afecta en mi día a día", score: 3 }
+    ]
+  },
+  {
+    category: "Estado de ánimo",
+    text: "¿Has notado cambios en tu estado de ánimo como irritabilidad, ansiedad o tristeza sin causa aparente?",
+    options: [
+      { text: "No, mi humor es estable", score: 0 },
+      { text: "Alguna vez, de forma puntual", score: 1 },
+      { text: "Con cierta frecuencia", score: 2 },
+      { text: "Frecuentemente, me preocupa", score: 3 }
+    ]
+  },
+  {
+    category: "Piel y síntomas externos",
+    text: "¿Has notado problemas de piel como acné adulto, eczema, rosácea o erupciones?",
+    options: [
+      { text: "No, mi piel está bien", score: 0 },
+      { text: "Alguna erupción puntual", score: 1 },
+      { text: "Sí, de forma recurrente", score: 2 },
+      { text: "Sí, es un problema constante", score: 3 }
+    ]
+  },
+  {
+    category: "Peso y cuerpo",
+    text: "¿Has subido de peso o tienes dificultades para perder peso sin razón clara?",
+    options: [
+      { text: "No, mi peso es estable", score: 0 },
+      { text: "Alguna variación esporádica", score: 1 },
+      { text: "Sí, noto que me cuesta mantener o bajar el peso", score: 2 },
+      { text: "Sí, es un problema persistente y frustrante", score: 3 }
+    ]
+  },
+  {
+    category: "Sistema inmune",
+    text: "¿Con qué frecuencia te enfermas de resfriados, infecciones u otras afecciones?",
+    options: [
+      { text: "Pocas veces al año, me recupero rápido", score: 0 },
+      { text: "El promedio habitual", score: 1 },
+      { text: "Con más frecuencia de lo que me gustaría", score: 2 },
+      { text: "Frecuentemente, mi sistema inmune parece débil", score: 3 }
+    ]
+  },
+  {
+    category: "Intolerancias y alergias",
+    text: "¿Has desarrollado nuevas intolerancias o alergias alimentarias en los últimos años?",
+    options: [
+      { text: "No, tolero bien los alimentos", score: 0 },
+      { text: "Quizás alguna leve, no estoy segura", score: 1 },
+      { text: "Sí, he notado que ciertos alimentos me sientan mal", score: 2 },
+      { text: "Sí, cada vez tengo más restricciones alimentarias", score: 3 }
+    ]
+  },
+  {
+    category: "Hábitos alimenticios",
+    text: "¿Cómo describirías tu alimentación habitual?",
+    options: [
+      { text: "Variada, con muchas verduras, legumbres y alimentos frescos", score: 0 },
+      { text: "Bastante equilibrada, aunque con algunos excesos", score: 1 },
+      { text: "Irregular, con mucho procesado, azúcar o harinas refinadas", score: 2 },
+      { text: "Muy desequilibrada, pocos alimentos naturales", score: 3 }
+    ]
+  },
+  {
+    category: "Estrés",
+    text: "¿Cómo es tu nivel de estrés en general?",
+    options: [
+      { text: "Bajo, me siento tranquila", score: 0 },
+      { text: "Moderado, lo gestiono bien", score: 1 },
+      { text: "Alto, me cuesta desconectar", score: 2 },
+      { text: "Muy alto, me siento desbordada con frecuencia", score: 3 }
+    ]
+  },
+  {
+    category: "Sueño",
+    text: "¿Cómo es tu calidad de sueño habitualmente?",
+    options: [
+      { text: "Duermo bien y me despierto descansada", score: 0 },
+      { text: "Alguna noche irregular, pero en general bien", score: 1 },
+      { text: "Duermo mal con frecuencia o no descanso bien", score: 2 },
+      { text: "Tengo insomnio o siempre me levanto agotada", score: 3 }
+    ]
+  },
+  {
+    category: "Síntomas sistémicos",
+    text: "¿Tienes migrañas, dolores de cabeza recurrentes o síntomas alérgicos como rinitis sin causa clara?",
+    options: [
+      { text: "No, raramente", score: 0 },
+      { text: "Ocasionalmente", score: 1 },
+      { text: "Con frecuencia", score: 2 },
+      { text: "Son muy habituales en mi vida", score: 3 }
+    ]
+  },
+  {
+    category: "Historial de salud",
+    text: "¿Tienes diagnóstico de alguna enfermedad autoinmune o inflamatoria crónica (celiaquía, Crohn, artritis, lupus, tiroiditis...)?",
+    options: [
+      { text: "No", score: 0 },
+      { text: "Tengo alguna sospecha pero sin diagnóstico", score: 1 },
+      { text: "Sí, tengo algún diagnóstico", score: 3 },
+      { text: "Sí, y además otros problemas de salud asociados", score: 3 }
+    ]
+  }
+];
+
+const results = {
+  1: {
+    level: 1,
+    icon: "🌿",
+    badge: "Nivel 1 · Buen estado general",
+    title: "Tu intestino parece estar funcionando bastante bien",
+    summary: "Tus respuestas indican que actualmente no existen señales importantes de desequilibrio digestivo. Sin embargo, hay oportunidades para optimizar tu alimentación y fortalecer aún más tu bienestar.",
+    patterns: ["Tu digestión es relativamente estable", "Tus niveles de energía y ánimo se mantienen en buen equilibrio", "Tu sistema inmune parece funcionar adecuadamente"],
+    consequences: ["Pequeños hábitos no óptimos pueden acumularse con el tiempo", "El estrés o cambios hormonales pueden afectar tu salud intestinal en el futuro", "Optimizar ahora puede prevenir desequilibrios más adelante"],
+    recommendations: ["Incorpora más alimentos fermentados (yogur, kéfir, chucrut)", "Asegúrate de incluir suficiente fibra diversa en tu alimentación", "Gestiona el estrés con técnicas de relajación regulares", "Mantén una hidratación adecuada a lo largo del día"],
+    motivator: "\"Tienes una base sólida. Con pequeños ajustes puedes llevar tu bienestar al siguiente nivel y proteger tu salud intestinal a largo plazo.\""
+  },
+  2: {
+    level: 2,
+    icon: "⚠️",
+    badge: "Nivel 2 · Señales de alerta moderadas",
+    title: "Podrían existir señales de inflamación intestinal",
+    summary: "Tus respuestas muestran varios indicadores que suelen asociarse con inflamación digestiva y hábitos que podrían estar afectando tu bienestar. Actuar ahora puede evitar que estos síntomas escalen.",
+    patterns: ["Síntomas digestivos recurrentes que impactan tu calidad de vida", "Signos de que tu microbiota intestinal puede estar desequilibrada", "Posible conexión intestino-cerebro afectando tu energía o estado de ánimo"],
+    consequences: ["Sin atención, los síntomas tienden a intensificarse con el tiempo", "Un intestino inflamado puede afectar la absorción de nutrientes y tus defensas", "El desequilibrio intestinal se asocia con fatiga, problemas hormonales y de peso"],
+    recommendations: ["Identifica y reduce los alimentos que generan más inflamación en tu caso", "Considera incluir probióticos y alimentos ricos en fibra prebiótica", "Prioriza el descanso y la gestión del estrés como parte de tu recuperación", "Valora buscar acompañamiento profesional para personalizar tu protocolo"],
+    motivator: "\"Tu cuerpo ya te está dando señales. Es el momento de escucharlas y actuar antes de que los síntomas se conviertan en algo más difícil de revertir.\""
+  },
+  3: {
+    level: 3,
+    icon: "🔴",
+    badge: "Nivel 3 · Atención requerida",
+    title: "Tu intestino necesita atención",
+    summary: "Tus respuestas muestran múltiples señales que sugieren un desequilibrio digestivo importante que está afectando diferentes áreas de tu salud. Esto no es un diagnóstico, pero sí indica que merece atención profesional.",
+    patterns: ["Múltiples síntomas digestivos que interfieren con tu día a día", "Señales extraintestinales: piel, energía, ánimo, peso o sistema inmune comprometidos", "Posible disbiosis intestinal o permeabilidad intestinal aumentada"],
+    consequences: ["Un desequilibrio intestinal sostenido puede afectar seriamente tu calidad de vida", "Sin intervención, los síntomas se vuelven más difíciles de revertir", "El impacto en tu salud hormonal, mental y metabólica puede seguir creciendo"],
+    recommendations: ["Busca acompañamiento profesional especializado en salud digestiva funcional", "Evita la automedicación; cada caso necesita un protocolo personalizado", "Prioriza el descanso, la reducción del estrés y la alimentación antiinflamatoria", "Una evaluación profunda puede identificar las causas raíz de tus síntomas"],
+    motivator: "\"Tu situación tiene solución. Muchas mujeres con síntomas similares han recuperado su bienestar con el acompañamiento adecuado. El primer paso es entender qué está pasando realmente.\""
+  }
+};
+
+let currentQ = 0;
+let answers = new Array(questions.length).fill(null);
+
+// Estado de datos del usuario
+let userData = {};
+let selectedTime = null;
+
+function goToDataScreen() {
+  document.getElementById('screenStart').classList.remove('active');
+  document.getElementById('screenData').classList.add('active');
+}
+
+function selectTime(btn, value) {
+  selectedTime = value;
+  document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('selected', 'error-border'));
+  btn.classList.add('selected');
+  document.getElementById('errTiempo').classList.remove('visible');
+}
+
+function validateDataForm() {
+  let valid = true;
+
+  const nombre = document.getElementById('inputNombre').value.trim();
+  if (!nombre) {
+    document.getElementById('inputNombre').classList.add('error');
+    document.getElementById('errNombre').classList.add('visible');
+    valid = false;
+  } else {
+    document.getElementById('inputNombre').classList.remove('error');
+    document.getElementById('errNombre').classList.remove('visible');
+  }
+
+  const edad = parseInt(document.getElementById('inputEdad').value);
+  if (!edad || edad < 10 || edad > 120) {
+    document.getElementById('inputEdad').classList.add('error');
+    document.getElementById('errEdad').classList.add('visible');
+    valid = false;
+  } else {
+    document.getElementById('inputEdad').classList.remove('error');
+    document.getElementById('errEdad').classList.remove('visible');
+  }
+
+  const correo = document.getElementById('inputCorreo').value.trim();
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(correo)) {
+    document.getElementById('inputCorreo').classList.add('error');
+    document.getElementById('errCorreo').classList.add('visible');
+    valid = false;
+  } else {
+    document.getElementById('inputCorreo').classList.remove('error');
+    document.getElementById('errCorreo').classList.remove('visible');
+  }
+
+  if (!selectedTime) {
+    document.querySelectorAll('.time-btn').forEach(b => b.classList.add('error-border'));
+    document.getElementById('errTiempo').classList.add('visible');
+    valid = false;
+  }
+
+  const phone = document.getElementById('inputPhone').value.trim();
+  if (!phone || phone.length < 5) {
+    document.getElementById('phoneWrapper').classList.add('error');
+    document.getElementById('errPhone').classList.add('visible');
+    valid = false;
+  } else {
+    document.getElementById('phoneWrapper').classList.remove('error');
+    document.getElementById('errPhone').classList.remove('visible');
+  }
+
+  if (valid) {
+    const countryCode = document.getElementById('countryCode').value;
+    userData = {
+      nombre,
+      edad,
+      correo,
+      tiempo: selectedTime,
+      whatsapp: countryCode + phone
+    };
+  }
+
+  return valid;
+}
+
+function startTest() {
+  if (!validateDataForm()) return;
+  document.getElementById('screenData').classList.remove('active');
+  document.getElementById('screenQuestions').classList.add('active');
+  document.getElementById('progressWrap').classList.add('visible');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = questions[currentQ];
+  document.getElementById('qCategory').textContent = q.category;
+  document.getElementById('qText').textContent = q.text;
+
+  const list = document.getElementById('optionsList');
+  list.innerHTML = '';
+
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn' + (answers[currentQ] === i ? ' selected' : '');
+    btn.innerHTML = `<span class="check">${answers[currentQ] === i ? '✓' : ''}</span>${opt.text}`;
+    btn.onclick = () => selectOption(i);
+    list.appendChild(btn);
+  });
+
+  document.getElementById('errorMsg').classList.remove('visible');
+  document.getElementById('btnBack').style.visibility = currentQ === 0 ? 'hidden' : 'visible';
+  updateNextBtn();
+  updateProgress();
+}
+
+function selectOption(i) {
+  answers[currentQ] = i;
+  renderQuestion();
+}
+
+function updateNextBtn() {
+  const btn = document.getElementById('btnNext');
+  const enabled = answers[currentQ] !== null;
+  btn.classList.toggle('enabled', enabled);
+  btn.textContent = currentQ === questions.length - 1 ? 'Ver mi resultado →' : 'Siguiente →';
+}
+
+function updateProgress() {
+  const answered = answers.filter(a => a !== null).length;
+  const pct = Math.round((answered / questions.length) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `Pregunta ${currentQ + 1} de ${questions.length}`;
+  document.getElementById('progressPct').textContent = pct + '%';
+}
+
+function nextQuestion() {
+  if (answers[currentQ] === null) {
+    document.getElementById('errorMsg').classList.add('visible');
+    return;
+  }
+  if (currentQ < questions.length - 1) {
+    currentQ++;
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function prevQuestion() {
+  if (currentQ > 0) {
+    currentQ--;
+    renderQuestion();
+  }
+}
+
+function calcScore() {
+  return answers.reduce((sum, ans, i) => {
+    if (ans === null) return sum;
+    return sum + questions[i].options[ans].score;
+  }, 0);
+}
+
+// Arma un array con el texto de la opción elegida en cada pregunta, en orden
+function construirArrayRespuestas() {
+  return questions.map((q, i) => {
+    return answers[i] !== null && answers[i] !== undefined
+      ? q.options[answers[i]].text
+      : 'Sin respuesta';
+  });
+}
+
+// Envía los datos del formulario + resultado del quiz al backend
+function enviarDatosAlBackend(score, nivelTexto) {
+  const respuestas = construirArrayRespuestas();
+
+  fetch('/api/submit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      nombre: userData.nombre,
+      edad: userData.edad,
+      correo: userData.correo,
+      whatsapp: userData.whatsapp,
+      tiempo: userData.tiempo,
+      puntaje: score,
+      nivel: nivelTexto,
+      respuestas: respuestas
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (!data.success) console.warn('No se pudo enviar el correo:', data.error);
+  })
+  .catch(err => console.error('Error al enviar datos:', err));
+}
+
+function showResult() {
+  const score = calcScore();
+  const max = questions.length * 3;
+
+  let level;
+  if (score <= max * 0.25) level = 1;
+  else if (score <= max * 0.55) level = 2;
+  else level = 3;
+
+  const r = results[level];
+
+  document.getElementById('screenQuestions').classList.remove('active');
+  document.getElementById('progressWrap').classList.remove('visible');
+  document.getElementById('screenResult').classList.add('active');
+
+  // Enviar los datos al backend (Airtable + correo de recomendaciones)
+  enviarDatosAlBackend(score, r.title || r.level || ('Nivel ' + level));
+
+  const hero = document.getElementById('resultHero');
+  hero.className = 'result-hero level-' + level;
+
+  document.getElementById('resultIcon').textContent = r.icon;
+  document.getElementById('resultBadge').textContent = r.badge;
+  document.getElementById('resultTitle').textContent = r.title;
+  document.getElementById('resultSummary').textContent = r.summary;
+  document.getElementById('motivatorBox').textContent = r.motivator;
+
+  const sections = document.getElementById('resultSections');
+  sections.innerHTML = `
+    <div class="result-section">
+      <h4>📋 Patrones detectados</h4>
+      <ul>${r.patterns.map(p => `<li>${p}</li>`).join('')}</ul>
+    </div>
+    <div class="result-section">
+      <h4>⚡ Qué puede ocurrir si no actúas</h4>
+      <ul>${r.consequences.map(c => `<li>${c}</li>`).join('')}</ul>
+    </div>
+    <div class="result-section">
+      <h4>📧 Revisa tu correo</h4>
+      <p>Te envié algunas recomendaciones generales que podrían ayudarte a empezar en tu proceso de recuperar tu salud digestiva.</p>
+    </div>
+  `;
+}
+
+function restartTest() {
+  currentQ = 0;
+  answers = new Array(questions.length).fill(null);
+  selectedTime = null;
+  userData = {};
+  document.getElementById('screenResult').classList.remove('active');
+  document.getElementById('screenStart').classList.add('active');
+  // Limpiar formulario
+  ['inputNombre','inputEdad','inputCorreo','inputPhone'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.value = ''; el.classList.remove('error'); }
+  });
+  document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('selected','error-border'));
+  document.querySelectorAll('.field-error').forEach(e => e.classList.remove('visible'));
+}
+</script>
+</body>
+</html>
