@@ -83,7 +83,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Método 5R <onboarding@resend.dev>',
+        from: 'Restauración Digestiva <recomendaciones@restauraciondigestiva.com>',
         to: [correo],
         subject: `${nombre}, aquí están tus recomendaciones de salud digestiva 🌿`,
         html: buildEmailHtml(nombre, nivel),
